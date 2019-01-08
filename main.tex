@@ -192,6 +192,11 @@
     \subsection{}
     \begin{frame}{Vérificateur : les règles et les certificats}
 
+
+      Le certificat Coq est obtenu à partir du fichier de certificat fourni par les prouveurs automatiques.
+
+      \vspace{0.5cm}
+      
       \texttt{Inductive rule :=}\\
       \texttt{| AndProj (pos\_prem\,:\,int) (ind\_proj\,:\,int)}\\
       \texttt{| Resolution (pos\_param\,:\,int list)}.
@@ -201,9 +206,6 @@
 
       Une règle \texttt{Andproj prem i} permet de projeter la conjonction en indice \texttt{prem} sur sa composante \texttt{i}.
 
-      \vspace{0.5cm}
-
-      Le certificat Coq est obtenu à partir du fichier de certificat fourni par les prouveurs automatiques.
     \end{frame}
 
     \begin{frame}{Vérificateur : la fonction \textit{checker}}
@@ -213,20 +215,20 @@
       \vspace {0.3cm}
 
       Posons : \\
-      \texttt{certif := [Andproj 0 2; Andproj 0 1; Resolution 2 1]}\\
+      \texttt{certif := [Andproj 0 2; Andproj 0 1; Resolution\,[2;1]]}\\
       \texttt{in := And (Bool x) (Neg (Bool x))}\\
       \vspace{0.3cm}
       \uncover<1->{L'état est alors initialisé à \texttt{[in]}.}
 
       \vspace{1mm}
-      \uncover<1->{Après la première règle : \texttt{[in; Bool x]}. }
+      \uncover<1->{Après la première règle : \texttt{[in; Neg (Bool x)]}. }
 
       \vspace{1mm}
-      \uncover<2->{Après la deuxième règle : \texttt{[in; Bool x; Neg (Bool x)]}. }
+      \uncover<2->{Après la deuxième règle : \texttt{[in; Neg (Bool x); Bool x]}. }
 
       \vspace{1mm}
       \uncover<3->{Enfin, la troisième règle transforme l'état en :
-        \[\texttt{[in; Bool x; Neg (Bool x); Bool false]}\]
+        \[\texttt{[in; Neg (Bool x); Bool x; Bool false]}\]
 
         L'état final contient \texttt{Bool false}, on a donc :
         \[\texttt{checker certif in = true}\]
@@ -257,6 +259,7 @@
         \RightLabel{\textit{conv}}
         \UnaryInfC{\texttt{checker certif in = true}}
         \AxiomC{\textit{correction d'une étape}}
+        \doubleLine
         \UnaryInfC{\textit{correction}}
         \RightLabel{\textit{MP}}
         \BinaryInfC{\texttt{interp in = false}}
@@ -285,7 +288,7 @@
 
       \vspace*{2mm}
 
-      Objectifs : permettre l'ajout de lemmes quantifiés au contexte et tenir compte de leurs instanciations dans le certificat.
+      Objectifs : permettre l'ajout de lemmes quantifiés au contexte et tenir compte de leurs instanciations dans le certificat. L'accent est mis sur la légèreté de cette extension.
 
       \vspace*{6mm}
 
@@ -302,17 +305,17 @@
 
 
     \subsection{}
-    \begin{frame}{La règle \texttt{ForallInst}}
+    \begin{frame}{La règle \texttt{Inst}}
       \begin{align*}
         &\texttt{Inductive rule :=}\\
         &\texttt{| ... } \\
-        &\texttt{| ForallInst }\texttt{(lemma\,:\,Prop) (plemma\,:\,lemma)} \\
+        &\texttt{| Inst }\texttt{(lemma\,:\,Prop) (plemma\,:\,lemma)} \\
         &\texttt{         (inst\,:}\texttt{\,formula) (pinst\,:\,lemma\,->\,interp inst\,=\,true)}
       \end{align*}
 
       Avantage : le type des formules est inchangé. On utilise la modularité de SMTCoq lors de l'ajout de nouvelles règles.  \\
       \vspace{0.3cm}
-      Cas d'application : l'instance ne doit pas contenir de quantificateurs, on se restreint au cas des lemmes en forme prénexe. \\
+      Cas d'application : l'instance ne doit pas contenir de quantificateurs, on se restreint au cas des lemmes avec quantificateurs universels en tête de formule. \\
       \vspace{0.3cm}
       La construction d'une telle règle demande la recherche du lemme correspondant à l'instance.
     \end{frame}
@@ -323,7 +326,7 @@
     \subsection{}
     \begin{frame}{Application à veriT : certificats}
 
-      Si le problème n'est pas satisfiable, renvoit un fichier de certificat qui explique pourquoi c'est le cas.
+      Si le problème n'est pas satisfiable, renvoie un fichier de certificat qui explique pourquoi c'est le cas.
 
       \hspace{1cm}
 
@@ -366,7 +369,7 @@
       \end{flalign*}
       en :
       \vspace{0.3cm}
-      \texttt{ForallInst \_ \_ (P c) \_ } \\
+      \texttt{Inst \_ \_ (P c) \_ } \\
       où les \texttt{\_} sont à compléter (recherche du lemme correspondant, et preuve de l'instanciation). \\
       \vspace{0.3cm}
       $\Longrightarrow$ Suppression de la forme logique de l'implication et des quantificateurs.
@@ -406,25 +409,39 @@
       \end{center}
       \vspace{3mm}
 
-      $\longrightarrow $ \texttt{github.com/smtcoq/smtcoq}
+      $\longrightarrow $ \texttt{smtcoq.github.io}
 
 
     \end{frame}
 
     \subsection{}
-    \begin{frame}{Conclusion}
+    \begin{frame}{Contributions}
       Résultats : amélioration de l'expressivité de SMTCoq confirmée par des tests en théorie des groupes, sur une théorie formalisant les listes d'entiers ...
+
+      \vspace{3mm}
+
+      \begin{align*}
+        \texttt{Inst } &\texttt{(lemma\,:\,Prop) (plemma\,:\,lemma)} \\
+        &\texttt{(inst\,:}\texttt{\,formula) (pinst\,:\,lemma\,->\,interp inst\,=\,true)}
+      \end{align*}
 
       \vspace{5mm}
 
-      D'autres extensions sont possibles pour étendre les cas d'application de SMTCoq :
+      Nouvelle règle, d'un autre type : elle utilise à la fois un encodage profond et un encodage superficiel des formules.
 
+      
+    \end{frame}
+
+    \subsection{}
+    \begin{frame}{Conclusion}
+      
+      Perspectives : étendre les cas d'application de SMTCoq.
       \begin{itemize}
-      \item formules dans le type des propositions de Coq
+      \item application à CVC4
       \item logique du premier ordre
       \end{itemize}
 
-      \vspace{5mm}
+      \vspace{1cm}
 
       Objectif : faciliter et généraliser l'utilisation de SMTCoq dans les projets développés en Coq.
 
