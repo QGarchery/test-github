@@ -1,0 +1,34 @@
+name: Publish pdf CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/cache@v3
+      id: cache
+      with:
+       path: lock
+       key: latex-${{ hashFiles('./lock') }}
+
+    - name: list files
+      run: ls -la
+
+    - name: cache miss
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: echo "not cached"
+
+    - name: cache hit
+      if: steps.cache.outputs.cache-hit == 'true'
+      run: echo "cached"
