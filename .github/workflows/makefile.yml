@@ -13,20 +13,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - uses: actions/cache@v3
-      id: cache
+ 
+    - name: Compile main
+      uses: xu-cheng/latex-action@v2
       with:
-       path: lock
-       key: latex-${{ hashFiles('./lock') }}
+        root_file: main.tex
 
-    - name: list files
-      run: ls -la
-
-    - name: cache miss
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: echo "not cached"
-
-    - name: cache hit
-      if: steps.cache.outputs.cache-hit == 'true'
-      run: echo "cached"
+    - name : publish pdf
+      uses: actions/upload-artifact@v2
+      with:
+        name: main file
+        path: main.pdf
