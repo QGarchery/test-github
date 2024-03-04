@@ -6,7 +6,9 @@ DistinctIdentifiers --> Enabled
 Enabled --> LastUpdated
 LastUpdated --> ConsistentState
 ConsistentState --> Liveness
-ConsistentState -->|loop iter 1| Tokens
+ConsistentState --> Tokens(Tokens (loop iter 1))
 ConsistentState --> Reverts
 Roles
+Reentrancy
+Immutability
 ```
