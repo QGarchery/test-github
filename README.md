@@ -1,6 +1,6 @@
 ```mermaid
 graph
-Range --> PendingValues
+Range <-- PendingValues
 PendingValues --> DistinctIdentifiers
 DistinctIdentifiers --> Enabled
 Enabled --> LastUpdated
