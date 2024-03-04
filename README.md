@@ -1,13 +1,13 @@
 ```mermaid
 graph
-Range <-- PendingValues
-PendingValues --> DistinctIdentifiers
-DistinctIdentifiers --> Enabled
-Enabled --> LastUpdated
-LastUpdated --> ConsistentState
-ConsistentState --> Liveness
-ConsistentState --> Tokens(Tokens, loop iter 1)
-ConsistentState --> Reverts
+Tokens --> ConsistentState
+Liveness --> ConsistentState
+Reverts --> ConsistentState
+ConsistentState --> LastUpdated
+LastUpdated --> Enabled
+Enabled --> DistinctIdentifiers
+DistinctIdentifiers --> PendingValues
+PendingValues --> Range
 Roles
 Reentrancy
 Immutability
